@@ -1,0 +1,91 @@
+{
+ "title": "爱丁堡CS本科生手写LLM推理引擎",
+ "source": "https://github.com/JackSuuu/mini-infer",
+ "caption": "最近把一个小项目做完了：mini-infer，一个 vLLM / SGLang 风格的 LLM 推理引擎，PyTorch + Triton 从零实现。\n\n为什么做？因为只会调 vLLM 不够，我想搞清楚 KV Cache、连续批处理、PagedAttention 到底是怎么运转的。\n\n里面包括：\n① Continuous Batching 调度器（显存不足可抢占）\n② PagedAttention 风格 KV 显存池\n③ Triton paged-attn decode kernel（支持 GQA）\n④ CUDA Graph 回放\n\n支持 LLaMA / Mistral / Qwen / GPT-2，在 4×RTX A6000 上测试。代码开源在 GitHub：JackSuuu/mini-infer\n\n想看哪一块的详细拆解？评论区告诉我，下一篇就写～",
+ "tags": [
+  "#LLM推理",
+  "#vLLM",
+  "#CUDA",
+  "#爱丁堡大学",
+  "#计算机科学",
+  "#留学生",
+  "#程序员",
+  "#GitHub"
+ ],
+ "slides": [
+  {
+   "type": "cover",
+   "kicker": "爱丁堡 CS · 项目复盘",
+   "heading": "本科生手写<br>LLM 推理引擎",
+   "sub": "mini-infer：vLLM / SGLang 风格，PyTorch + Triton 从零实现"
+  },
+  {
+   "type": "content",
+   "no": "01",
+   "heading": "为什么要自己写一遍？",
+   "bullets": [
+    "调 API、跑 vLLM，谁都会",
+    "但 KV Cache、连续批处理到底怎么回事？",
+    "读懂的最好方式：自己造一个"
+   ]
+  },
+  {
+   "type": "code",
+   "no": "02",
+   "heading": "整体架构",
+   "code": "<b>Request</b>\n  ↓\n<b>Scheduler</b>  连续批处理\n  ↓\n<b>Worker</b>  Prefill / Decode\n  ↓\n<b>Sampler</b>  greedy · top-k · top-p\n  ↓\nOutput tokens",
+   "note": "调度器 → 执行器 → 采样器，和主流推理引擎同一套思路"
+  },
+  {
+   "type": "content",
+   "no": "03",
+   "heading": "四个核心实现",
+   "bullets": [
+    "Continuous Batching 调度器，显存不够时可抢占",
+    "PagedAttention 风格的 KV 显存池",
+    "Triton 写的 paged-attn decode kernel（GQA）",
+    "CUDA Graph 回放，省掉 kernel 启动开销"
+   ]
+  },
+  {
+   "type": "table",
+   "no": "04",
+   "heading": "支持与测试环境",
+   "cols": [
+    "",
+    "内容"
+   ],
+   "rows": [
+    [
+     "模型",
+     "LLaMA / Mistral / Qwen、GPT-2 / GPT-Neo"
+    ],
+    [
+     "硬件",
+     "4 × RTX A6000 (48GB)"
+    ],
+    [
+     "软件",
+     "CUDA 12.4 · PyTorch 2 · Triton"
+    ]
+   ]
+  },
+  {
+   "type": "content",
+   "no": "05",
+   "heading": "做完最大的体会",
+   "bullets": [
+    "Prefill 和 Decode 是两种完全不同的负载",
+    "KV Cache 管理，本质是内存分配问题",
+    "调度策略直接决定吞吐"
+   ]
+  },
+  {
+   "type": "end",
+   "heading": "代码已开源",
+   "sub": "GitHub：JackSuuu / mini-infer",
+   "cta": "想看哪一块的详解？评论区告诉我"
+  }
+ ],
+ "theme": "A"
+}
